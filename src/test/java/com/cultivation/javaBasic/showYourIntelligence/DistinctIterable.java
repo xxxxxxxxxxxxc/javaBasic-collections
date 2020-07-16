@@ -28,19 +28,36 @@ class DistinctIterator<E> implements Iterator<E> {
     // <--start
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final Iterator<E> iterator;
+    private HashSet<E> showed = new HashSet<>();
+    private Optional<E> nextItem = Optional.empty();
 
     DistinctIterator(Iterator<E> iterator) {
         this.iterator = iterator;
+        if (this.iterator.hasNext()) {
+            E next = this.iterator.next();
+            this.showed.add(next);
+            this.nextItem = Optional.of(next);
+        }
     }
 
     @Override
     public boolean hasNext() {
-        throw new NotImplementedException();
+        return this.nextItem.isPresent();
     }
 
     @Override
     public E next() {
-        throw new NotImplementedException();
+        E e = this.nextItem.get();
+        this.nextItem = Optional.empty();
+        while (this.iterator.hasNext()) {
+            E next = this.iterator.next();
+            if (!this.showed.contains(next)) {
+                this.showed.add(next);
+                this.nextItem = Optional.of(next);
+                break;
+            }
+        }
+        return e;
     }
     // --end->
 }
